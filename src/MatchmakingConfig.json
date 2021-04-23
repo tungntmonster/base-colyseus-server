@@ -1,0 +1,75 @@
+{
+  "MatchingTimeoutRange": [10, 16],
+  "IntroLength": 12,
+  "Ranks": [
+    {
+      "Number": 1,
+      "BattlefieldScoreRange": {
+        "Min": 0,
+        "Max": 50
+      },
+      "DamageMultiplier": 333.0,
+      "Name": "Bronze",
+      "MedalSpriteKey": "bossrace-rank1",
+      "FloorScore": 10000
+    },
+    {
+      "Number": 2,
+      "BattlefieldScoreRange": {
+        "Min": 51,
+        "Max": 150
+      },
+      "DamageMultiplier": 488.0,
+      "Name": "Silver",
+      "MedalSpriteKey": "bossrace-rank2",
+      "FloorScore": 30000
+    },
+    {
+      "Number": 3,
+      "BattlefieldScoreRange": {
+        "Min": 151,
+        "Max": 300
+      },
+      "DamageMultiplier": 1030.0,
+      "Name": "Gold",
+      "MedalSpriteKey": "bossrace-rank3",
+      "FloorScore": 50000
+    },
+    {
+      "Number": 4,
+      "BattlefieldScoreRange": {
+        "Min": 301,
+        "Max": 500
+      },
+      "DamageMultiplier": 2096.0,
+      "Name": "Platinum",
+      "MedalSpriteKey": "bossrace-rank4",
+      "FloorScore": 100000
+    },
+    {
+      "Number": 5,
+      "BattlefieldScoreRange": {
+        "Min": 501,
+        "Max": 1000
+      },
+      "DamageMultiplier": 4102.0,
+      "Name": "Diamond",
+      "MedalSpriteKey": "bossrace-rank5",
+      "FloorScore": 200000
+    },
+    {
+      "Number": 6,
+      "BattlefieldScoreRange": {
+        "Min": 1001,
+        "Max": 2000
+      },
+      "DamageMultiplier": 8927.0,
+      "Name": "Superstar",
+      "MedalSpriteKey": "bossrace-rank6",
+      "FloorScore": 30000
+    }
+  ],
+  "BattlefieldScorePerMatch": 20,
+  "BattlefieldScoreGainRandomRange": 2,
+  "ToleratedPlayerInactivitySeconds": 5
+}

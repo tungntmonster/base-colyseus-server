@@ -1,0 +1,8 @@
+{
+  "host": "imo-service-staging-t3-cluster.cluster-cawyfhge9s46.us-west-2.rds.amazonaws.com",
+  "port": 31231,
+  "user": "imoadmin",
+  "password": "V8CR567h0JmW",
+  "database": "imo_service",
+  "timezone": "+00:00"
+}
