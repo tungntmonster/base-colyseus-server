@@ -1,10 +1,9 @@
 import { Client } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
 import { CustomLobbyRoom, customLobbyRoomLogger } from "../../CustomLobbyRoom/CustomLobbyRoom";
-import * as mysql2 from "mysql2/promise";
-import { ProfileServerConnector } from "../../../ProfileServerConnector";
 import * as BossRaceHistory from "../../../dataobjects/BossRaceHistory";
-
+import { getConnection } from "typeorm";
+import {  PlayerPvpHistoryEntity } from "../../../entity/PlayerPvpHistory";
 export class CacheBossRaceHistoryOnJoin extends RoomModule<CustomLobbyRoom> {
   attach(room: CustomLobbyRoom) {
     super.attach(room);
@@ -18,19 +17,47 @@ export class CacheBossRaceHistoryOnJoin extends RoomModule<CustomLobbyRoom> {
 
   cacheHistory = async (client: Client, options?: any, auth?: any) => {
     const playerID = <number>client.userData['PlayerID'];
-    if (BossRaceHistory.CachedPlayers.has(playerID)) return;
-    const historyQuery = <[mysql2.RowDataPacket[], mysql2.FieldPacket[]]>
-      await ProfileServerConnector.ConnectionPool.query(`SELECT *
-        FROM player_pvp_history
-        WHERE player_id = ${playerID} AND mode = 'BossRace'
-        ORDER BY created_at DESC`)
-        .catch(e => customLobbyRoomLogger.error(e));
-    BossRaceHistory.Matches.set(playerID,
-      historyQuery[0].map(r => <BossRaceHistory.MatchResult>{
-        score: <number>r['score'],
-        result: <string>r['result'],
-        createdAt: new Date(r['created_at'])
-      }));
-    BossRaceHistory.CachedPlayers.add(playerID);
+    if (BossRaceHistory.CachedPlayers.has(playerID))
+      return;
+    
+    
+    try {
+      const history = await getConnection().getRepository(PlayerPvpHistoryEntity).findOne({
+        where: {
+          playerId: playerID,
+          mode: 'BossRace'
+        },
+        order: {
+          createdAt: 'DESC'
+        }
+      })
+
+      if(history) {
+        BossRaceHistory.Matches.set(playerID, [{
+          score: history.score,
+          result: history.result,
+          createdAt: history.createdAt
+        }])
+        BossRaceHistory.CachedPlayers.add(playerID);
+      }
+    } catch (err) {
+      customLobbyRoomLogger.error(err);
+    }
+
+    // const historyQuery = <[mysql2.RowDataPacket[], mysql2.FieldPacket[]]>
+    //   await ProfileServerConnector.ConnectionPool.query(`SELECT *
+    //     FROM player_pvp_history
+    //     WHERE player_id = ${playerID} AND mode = 'BossRace'
+    //     ORDER BY created_at DESC`)
+    //     .catch(e => customLobbyRoomLogger.error(e));
+    
+    // BossRaceHistory.Matches.set(playerID,
+    //   historyQuery[0].map(r => <BossRaceHistory.MatchResult>{
+    //     score: <number>r['score'],
+    //     result: <string>r['result'],
+    //     createdAt: new Date(r['created_at'])
+    //   }));
+    
+    // BossRaceHistory.CachedPlayers.add(playerID);
   }
 }

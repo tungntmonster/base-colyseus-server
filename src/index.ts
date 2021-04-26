@@ -4,8 +4,9 @@ import express from "express";
 import path from "path";
 import { Server } from 'colyseus'
 import serveIndex from 'serve-index';
-import { CustomLobbyRoom } from "./rooms";
+import { BossRaceRoom, CustomLobbyRoom } from "./rooms";
 import { log } from "./utils/log";
+import { createConnection } from "typeorm";
 
 const logger = log("index")
 
@@ -34,7 +35,12 @@ app.use('/', serveIndex(path.join(__dirname, "../src/static"), {'icons': true}))
 
 app.use('/', express.static(path.join(__dirname, "../src/static")));
 
+createConnection()
+  .then(async () => { })
+  .catch((error) => logger.error(error));
+
 gameServer.define("CustomLobbyRoom", CustomLobbyRoom);
+gameServer.define("BossRaceRoom", BossRaceRoom);
 
 
 gameServer.onShutdown(() => {

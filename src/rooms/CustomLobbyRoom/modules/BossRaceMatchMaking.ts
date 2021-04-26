@@ -37,6 +37,7 @@ export class BossRaceMatchMaking extends RoomModule<CustomLobbyRoom> {
     });
     const bfScoreToMatch = PlayerBattlefieldScores.get(playerID);
     customLobbyRoomLogger.info(`matchmaking PlayerID: ${playerID}, bfScoreToMatch: ${bfScoreToMatch}`);
+    
     const scoreRange = BossRaceMatchMaking.getMatchmadeScore(bfScoreToMatch);
     const diffToCurrentClient = (d: RoomListingData<any>) =>
       bfScoreToMatch.difference(d.metadata['AverageBFScore'] as number)
@@ -60,10 +61,9 @@ export class BossRaceMatchMaking extends RoomModule<CustomLobbyRoom> {
     const rankToMatch = MatchmakingConfig.JSONObj.Ranks
       .find(r => r.BattlefieldScoreRange.Min <= scoreToMatch
         && r.BattlefieldScoreRange.Max >= scoreToMatch);
-    if (rankToMatch == null) {
+    if (!rankToMatch) {
       var maxRank = MatchmakingConfig.JSONObj.Ranks[MatchmakingConfig.JSONObj.Ranks.length - 1];
-      return [maxRank.BattlefieldScoreRange.Min,
-        maxRank.BattlefieldScoreRange.Max];
+      return [maxRank.BattlefieldScoreRange.Min, maxRank.BattlefieldScoreRange.Max];
     }
     return MatchmakingConfig.JSONObj.Ranks
       .filter(r => rankToMatch.Number >= r.Number - 1

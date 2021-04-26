@@ -6,8 +6,7 @@ import { bossRaceRoomLogger } from "../BossRaceRoom";
 export class EndMatchConditions extends RoomModule<BossRaceRoom> {
   attach(room: BossRaceRoom) {
     super.attach(room);
-    this.room.events.on('playerliveschange',
-      this.endWhenDeadPlayerHasLowerScore);
+    this.room.events.on('playerliveschange',this.endWhenDeadPlayerHasLowerScore);
     this.room.events.on('score', this.endWhenScoreExceedDeadPlayer);
     this.room.events.once('startmatch', () => {
       this.room.events.once('leave', this.endWithPlayerLoseLeft);
@@ -37,18 +36,20 @@ export class EndMatchConditions extends RoomModule<BossRaceRoom> {
     const otherPlayer = playerInfos.find(p => p[0] != sessionId);
     const deadPlayer = playerInfos.find(p => p[0] == sessionId);
     bossRaceRoomLogger.info(`${this.room.roomId} end with dead player has lower score`);
-    if (deadPlayer[1].Score < otherPlayer[1].Score) this.room.events
-      .emit('endmatch',
+    if (deadPlayer[1].Score < otherPlayer[1].Score) {
+      this.room.events.emit('endmatch',
         [[deadPlayer[0], 'lose', deadPlayer[1].Score],
         [otherPlayer[0], 'win', otherPlayer[1].Score]]);
-    else if (deadPlayer[1].Score == otherPlayer[1].Score) this.room.events
-      .emit('endmatch', [[deadPlayer[0], 'lose', deadPlayer[1].Score],
+    } else if (deadPlayer[1].Score == otherPlayer[1].Score) {
+      this.room.events.emit('endmatch', 
+      [[deadPlayer[0], 'lose', deadPlayer[1].Score],
       [otherPlayer[0], 'win', otherPlayer[1].Score]]);
+    }
   }
 
   endWhenScoreExceedDeadPlayer = (sessionId: string, score: number) => {
-    const otherSessionId = [...this.room.state.Players.keys()]
-      .find(k => k != sessionId);
+    const otherSessionId = [...this.room.state.Players.keys()].find(k => k != sessionId);
+    
     const otherPlayerInfo = this.room.state.Players.get(otherSessionId);
     if (otherPlayerInfo == null) return;
     if (otherPlayerInfo.LivesRemaining > 0) return;

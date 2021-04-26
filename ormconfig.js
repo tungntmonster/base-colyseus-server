@@ -1,5 +1,5 @@
   
-const rootDir = process.env.APP_ENV == 'local' ? 'src' : 'lib';
+const rootDir = 'lib'
 
 module.exports = {
   type: process.env.DB_CONNECTION,
@@ -10,7 +10,7 @@ module.exports = {
   database: process.env.DB_NAME,
   synchronize: false,
   logging: false,
-  entities: [rootDir + '/entity/index.{js,ts}'],
+  entities: [rootDir + '/entity/*.{js,ts}'],
   migrations: [rootDir + '/migration/**/*.{js,ts}'],
   subscribers: [rootDir + '/subscriber/**/*.{js,ts}'],
   cli: {
