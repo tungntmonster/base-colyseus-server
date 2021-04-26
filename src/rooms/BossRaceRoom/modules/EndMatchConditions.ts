@@ -1,6 +1,7 @@
 import { Client } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
 import { BossRaceRoom } from "../../BossRaceRoom";
+import { bossRaceRoomLogger } from "../BossRaceRoom";
 
 export class EndMatchConditions extends RoomModule<BossRaceRoom> {
   attach(room: BossRaceRoom) {
@@ -35,7 +36,7 @@ export class EndMatchConditions extends RoomModule<BossRaceRoom> {
     if (playerInfos.some(p => p[1].LivesRemaining > 0)) return;
     const otherPlayer = playerInfos.find(p => p[0] != sessionId);
     const deadPlayer = playerInfos.find(p => p[0] == sessionId);
-    console.log(`${this.room.roomId} end with dead player has lower score`);
+    bossRaceRoomLogger.info(`${this.room.roomId} end with dead player has lower score`);
     if (deadPlayer[1].Score < otherPlayer[1].Score) this.room.events
       .emit('endmatch',
         [[deadPlayer[0], 'lose', deadPlayer[1].Score],
@@ -52,7 +53,7 @@ export class EndMatchConditions extends RoomModule<BossRaceRoom> {
     if (otherPlayerInfo == null) return;
     if (otherPlayerInfo.LivesRemaining > 0) return;
     if (score > otherPlayerInfo.Score) {
-      console.log(`${this.room.roomId} end with remaining player has higher score than dead player`);
+      bossRaceRoomLogger.info(`${this.room.roomId} end with remaining player has higher score than dead player`);
       this.room.events.emit('endmatch',
         [[sessionId, 'win', this.room.state.Players.get(sessionId).Score],
         [otherSessionId, 'lose', otherPlayerInfo.Score]]);
@@ -68,7 +69,7 @@ export class EndMatchConditions extends RoomModule<BossRaceRoom> {
   endWithPlayerLose = (client: Client, reason: string) => {
     const otherSessionId = [...this.room.state.Players.keys()]
       .find(k => k != client.sessionId);
-    console.log(`${this.room.roomId} end with player ${reason}`);
+    bossRaceRoomLogger.info(`${this.room.roomId} end with player ${reason}`);
     this.room.events.emit('endmatch',
       [[client.sessionId,
         'lose',
@@ -81,7 +82,7 @@ export class EndMatchConditions extends RoomModule<BossRaceRoom> {
   endWhenAllPlayersTimeout = (client: Client) => {
     client.userData['hasTimedOut'] = true;
     if (this.room.clients.some(c => !c.userData['hasTimedOut'])) return;
-    console.log(`${this.room.roomId} end with players timed out`);
+    bossRaceRoomLogger.info(`${this.room.roomId} end with players timed out`);
     const playerInfos = [...this.room.state.Players];
     const winner = playerInfos.reduce(
       (p, c) => p[1].Score > c[1].Score ? p : c);

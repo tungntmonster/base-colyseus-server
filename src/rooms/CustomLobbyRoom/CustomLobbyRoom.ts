@@ -1,23 +1,27 @@
 import { Schema, type } from "@colyseus/schema";
 import * as http from "http";
+import { Client, Delayed } from "colyseus";
+import { BaseRoom } from "../BaseRoom";
+import { GetBattlefieldScoreOnJoin, BossRaceMatchMaking, EnsureUniquePlayerID, SendBossRaceBFRanksOnJoin, CacheBossRaceHistoryOnJoin }
+  from "./modules"
+import { NoOps } from "../../utils/CommonUtils";
+import { log } from "../../utils/log";
+
+declare module "../BaseRoom" {
+  interface RoomEvents {
+    matchmake: (client: Client, options: any) => void,
+    kickduplicates: (client: Client) => void
+  }
+}
+
+export const customLobbyRoomLogger = log("Custom lobby room")
 
 export class LobbyRoomState extends Schema {
   @type('string')
   Dummy: string;
 }
 
-import { Client, Delayed } from "colyseus";
-import { BaseRoom } from "./BaseRoom";
-import { GetBattlefieldScoreOnJoin, BossRaceMatchMaking, EnsureUniquePlayerID, SendBossRaceBFRanksOnJoin, CacheBossRaceHistoryOnJoin }
-  from "./modules/CustomLobby"
-import { NoOps } from "../CommonUtils";
 
-declare module "./BaseRoom" {
-  interface RoomEvents {
-    matchmake: (client: Client, options: any) => void,
-    kickduplicates: (client: Client) => void
-  }
-}
 
 export class CustomLobbyRoom extends BaseRoom<LobbyRoomState> {
   graceWindowWaits = new Map<number, Delayed>();
@@ -37,15 +41,15 @@ export class CustomLobbyRoom extends BaseRoom<LobbyRoomState> {
   }
 
   async onJoin(client: Client, options: any, auth: any) {
-    console.log(`${client.sessionId} joined ${this.roomId}, client number: ${this.clients.length}, options: ${JSON.stringify(options)}`);
+    customLobbyRoomLogger.info(`${client.sessionId} joined ${this.roomId}, client number: ${this.clients.length}, options: ${JSON.stringify(options)}`);
     client.userData = options;
     super.onJoin(client, options, auth);
-    this.onMessage('*', (client, t, message) => console.log(`${t}  ${message}`))
+    this.onMessage('*', (client, t, message) => customLobbyRoomLogger.info(`${t}  ${message}`))
   }
 
   async onLeave(client: Client, consented?: boolean) {
     super.onLeave(client, consented);
-    console.log(`${client.sessionId} left ${this.roomId}, client number: ${this.clients.length}, consented? ${consented}`);
+    customLobbyRoomLogger.info(`${client.sessionId} left ${this.roomId}, client number: ${this.clients.length}, consented? ${consented}`);
     this.graceWindowWaits.get(client.userData['PlayerID']).clear();
     this.graceWindowWaits.delete(client.userData['PlayerID'] as number);
   }

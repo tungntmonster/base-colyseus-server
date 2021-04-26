@@ -44,7 +44,7 @@ configure({
 });
 
 const log = (service: string) =>  {
-  const logger = getLogger(service);
-  return logger;
+  const customLobbyRoomLogger = getLogger(service);
+  return customLobbyRoomLogger;
 }
 export { log };

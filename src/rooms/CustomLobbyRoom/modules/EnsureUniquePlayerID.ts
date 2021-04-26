@@ -1,6 +1,6 @@
 import { Client } from "colyseus";
 import {  RoomModule } from "../../BaseRoom";
-import { CustomLobbyRoom } from "../../CustomLobbyRoom";
+import { CustomLobbyRoom } from "../../CustomLobbyRoom/CustomLobbyRoom";
 
 export class EnsureUniquePlayerID extends RoomModule<CustomLobbyRoom> {
   duplicatePlayerIDCloseCode = 4001;

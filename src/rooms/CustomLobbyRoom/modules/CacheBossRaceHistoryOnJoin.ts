@@ -1,9 +1,8 @@
 import { Client } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
-import { CustomLobbyRoom } from "../../CustomLobbyRoom";
+import { CustomLobbyRoom, customLobbyRoomLogger } from "../../CustomLobbyRoom/CustomLobbyRoom";
 import * as mysql2 from "mysql2/promise";
 import { ProfileServerConnector } from "../../../ProfileServerConnector";
-import { LogError, NoOps } from "../../../CommonUtils";
 import * as BossRaceHistory from "../../../dataobjects/BossRaceHistory";
 
 export class CacheBossRaceHistoryOnJoin extends RoomModule<CustomLobbyRoom> {
@@ -25,7 +24,7 @@ export class CacheBossRaceHistoryOnJoin extends RoomModule<CustomLobbyRoom> {
         FROM player_pvp_history
         WHERE player_id = ${playerID} AND mode = 'BossRace'
         ORDER BY created_at DESC`)
-        .catch(LogError);
+        .catch(e => customLobbyRoomLogger.error(e));
     BossRaceHistory.Matches.set(playerID,
       historyQuery[0].map(r => <BossRaceHistory.MatchResult>{
         score: <number>r['score'],

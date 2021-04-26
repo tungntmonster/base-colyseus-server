@@ -14,12 +14,9 @@ function generateRandomString(allowedCharacters: string,
 
 function NoOps(...args: any[]) { }
 
-function LogError(...args: any[]) { console.log(args[0]); }
 
 function DeepClone<T>(obj: any): T {
   return JSON.parse(JSON.stringify(obj)) as T;
 }
 
-function AddNumber(a: number, b: number): number { return a + b; }
-
-export { timeout, generateRandomString, NoOps, LogError, DeepClone, AddNumber };
+export { timeout, generateRandomString, NoOps, DeepClone };

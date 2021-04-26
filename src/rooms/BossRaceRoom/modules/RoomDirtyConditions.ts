@@ -1,6 +1,7 @@
 import { Client } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
 import { BossRaceRoom } from "../../BossRaceRoom";
+import { bossRaceRoomLogger } from "../BossRaceRoom";
 
 export class RoomDirtyConditions extends RoomModule<BossRaceRoom> {
 
@@ -25,7 +26,7 @@ export class RoomDirtyConditions extends RoomModule<BossRaceRoom> {
 
   disconnectPlayerOnJoinDirtyRoom = (client: Client) => {
     if (!this.room.dirty) return;
-    console.log(`${this.room.roomId}: client ${client.sessionId} joined a dirty room, leaving with code 4002`);
+    bossRaceRoomLogger.info(`${this.room.roomId}: client ${client.sessionId} joined a dirty room, leaving with code 4002`);
     setTimeout(() => client.leave(4002), 1000);
   }
 }

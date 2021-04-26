@@ -1,29 +1,14 @@
-import { Schema, MapSchema, type } from "@colyseus/schema";
-
-export class PlayerInfo extends Schema {
-  @type('string')
-  Name: string;
-  @type('float64')
-  Score: number;
-  @type('int32')
-  LivesRemaining: number;
-  @type('int32')
-  BattlefieldScore: number;
-}
-
-export class PlayingRoomState extends Schema {
-  @type({ map: PlayerInfo })
-  Players = new MapSchema<PlayerInfo>();
-}
-
 import { Client } from "colyseus";
-import "../number-augmentations";
-import { BaseRoom } from "./BaseRoom";
-import { LogError } from "../CommonUtils";
-import { RoomDirtyConditions, SelectBossRandomlyOnEnoughPlayers, GenerateClientUserData, DisconnectAllOnAdditionalInfoIncomplete, BossRaceBot, UpdatePlayerScore, UpdatePlayerLives, StartMatchOnAllPlayersReady, EndMatchConditions, BroadcastOnEndMatch, CalculateNewBFScoresOnEndMatch, EndMatchOnPlayerInactivity, PostMatchResultsOnEnd } from "./modules/BossRaceRoom";
+import { Schema, MapSchema, type } from "@colyseus/schema";
+import "../../utils/number-augmentations";
+import { BaseRoom } from "../BaseRoom";
+import { RoomDirtyConditions, SelectBossRandomlyOnEnoughPlayers, GenerateClientUserData, DisconnectAllOnAdditionalInfoIncomplete, BossRaceBot, UpdatePlayerScore, UpdatePlayerLives, StartMatchOnAllPlayersReady, EndMatchConditions, BroadcastOnEndMatch, CalculateNewBFScoresOnEndMatch, EndMatchOnPlayerInactivity, PostMatchResultsOnEnd } from "./modules";
+import { log } from "../../utils/log";
 
 
-declare module "./BaseRoom" {
+export const bossRaceRoomLogger = log("Boss Race Room")
+
+declare module "../BaseRoom" {
   interface RoomEvents {
     score: (sessionId: string, score: number) => void,
     lives: (sessionId: string, lives: number) => void,
@@ -39,6 +24,24 @@ declare module "./BaseRoom" {
     playerresumeapp: (client: Client) => void,
     phase: (state: 'start' | 'end') => void
   }
+}
+
+
+
+export class PlayerInfo extends Schema {
+  @type('string')
+  Name: string;
+  @type('float64')
+  Score: number;
+  @type('int32')
+  LivesRemaining: number;
+  @type('int32')
+  BattlefieldScore: number;
+}
+
+export class PlayingRoomState extends Schema {
+  @type({ map: PlayerInfo })
+  Players = new MapSchema<PlayerInfo>();
 }
 
 export class BossRaceRoom extends BaseRoom<PlayingRoomState> {
@@ -60,27 +63,27 @@ export class BossRaceRoom extends BaseRoom<PlayingRoomState> {
       (c, m) => this.events.emit('score', c.sessionId, parseFloat(m)));
     this.onMessage('lives',
       (c, m) => {
-        console.log(`${this.roomId}: ${this.state.Players.get(c.sessionId).Name} lives: ${m}`);
+        bossRaceRoomLogger.info(`${this.roomId}: ${this.state.Players.get(c.sessionId).Name} lives: ${m}`);
         this.events.emit('lives', c.sessionId, parseInt(m));
       });
     this.onMessage('PlayerReady',
       (c, m) => this.events.emit('playerready', c.sessionId));
     this.onMessage('PlayerTimeOut',
       (c, m) => {
-        console.log(`${this.roomId}: ${this.state.Players.get(c.sessionId).Name} timed out`);
+        bossRaceRoomLogger.info(`${this.roomId}: ${this.state.Players.get(c.sessionId).Name} timed out`);
         this.events.emit('playertimeout', c);
       });
     this.onMessage('PlayerAdditionalInfo', (c, m) => {
-      console.log(`client ${c.sessionId} sent additional info`);
+      bossRaceRoomLogger.info(`client ${c.sessionId} sent additional info`);
       this.events.emit('broadcast', 'PlayerAdditionalInfo', m, c);
     });
     this.onMessage('Surrender', (c, m) => this.events.emit('surrender', c));
     this.onMessage('StartPause', (c, m) => {
-      console.log(`${c.sessionId} sent StartPause`);
+      bossRaceRoomLogger.info(`${c.sessionId} sent StartPause`);
       this.events.emit('playerpauseapp', c);
     });
     this.onMessage('EndPause', (c, m) => {
-      console.log(`${c.sessionId} sent EndPause`);
+      bossRaceRoomLogger.info(`${c.sessionId} sent EndPause`);
       this.events.emit('playerresumeapp', c);
     });
     this.onMessage('PhaseStart', (c, m) => this.events.emit('phase', 'start'));
@@ -103,7 +106,7 @@ export class BossRaceRoom extends BaseRoom<PlayingRoomState> {
   }
 
   async onJoin(client: Client, options?: any, auth?: any) {
-    console.log(`${client.sessionId} joined ${this.roomId}, client number: ${this.clients.length}, options: ${JSON.stringify(options)}`);
+    bossRaceRoomLogger.info(`${client.sessionId} joined ${this.roomId}, client number: ${this.clients.length}, options: ${JSON.stringify(options)}`);
     this.realPlayers.set(client.sessionId, options['PlayerID']);
     await this.addPlayerState(client.sessionId, options);
     super.onJoin(client, options, auth);
@@ -112,7 +115,7 @@ export class BossRaceRoom extends BaseRoom<PlayingRoomState> {
   onLeave(client: Client, consented?: boolean) {
     super.onLeave(client, consented);
     this.broadcast('PlayerLeave', client.sessionId);
-    console.log(`${client.sessionId} left ${this.roomId}, client number: ${this.clients.length}, room locked? ${this.locked}`);
+    bossRaceRoomLogger.info(`${client.sessionId} left ${this.roomId}, client number: ${this.clients.length}, room locked? ${this.locked}`);
   }
 
   async addPlayerState(sessionId: string, options: any) {
@@ -131,5 +134,5 @@ export class BossRaceRoom extends BaseRoom<PlayingRoomState> {
       .reduce((p, c) => p + c.BattlefieldScore, 0)
       .multiply(1 / this.state.Players.size)
       .floor()
-  }).catch(LogError);
+  }).catch(e => bossRaceRoomLogger.error(e));
 }

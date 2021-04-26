@@ -1,6 +1,6 @@
 import { Client } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
-import { CustomLobbyRoom } from "../../CustomLobbyRoom";
+import { CustomLobbyRoom } from "../CustomLobbyRoom";
 import MatchmakingConfig from "../../../dataobjects/LiveJSON/MatchmakingConfig"
 
 export class SendBossRaceBFRanksOnJoin extends RoomModule<CustomLobbyRoom> {

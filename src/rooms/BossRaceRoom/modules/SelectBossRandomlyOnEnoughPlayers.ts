@@ -2,8 +2,8 @@ import { Client } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
 import { BossRaceRoom } from "../../BossRaceRoom";
 import BossStageData from "../../../dataobjects/LiveJSON/BossStageData";
-import "../../../number-augmentations";
-import { DeepClone } from "../../../CommonUtils";
+import "../../../utils/number-augmentations";
+import { DeepClone } from "../../../utils/CommonUtils";
 import MatchmakingConfig from "../../../dataobjects/LiveJSON/MatchmakingConfig";
 
 export class SelectBossRandomlyOnEnoughPlayers extends RoomModule<BossRaceRoom> {

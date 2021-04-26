@@ -3,9 +3,9 @@ import { RoomModule } from "../../BaseRoom";
 import BotGenerationConfig
   from "../../../dataobjects/LiveJSON/BotGenerationConfig";
 import MatchmakingConfig from "../../../dataobjects/LiveJSON/MatchmakingConfig";
-import { timeout, generateRandomString, LogError, AddNumber }
-  from "../../../CommonUtils";
-import "../../../number-augmentations";
+import { generateRandomString }
+  from "../../../utils/CommonUtils";
+import "../../../utils/number-augmentations";
 import { last,
   zip,
   padLeft,
@@ -16,13 +16,14 @@ import { last,
   weightedRandomIdxBy
 } from '../../../utils/ArrayUtils'
 import { BossRaceMatchMaking }
-  from "../CustomLobby/index"
-import "../../../string-augmentation";
+  from "../../CustomLobbyRoom/modules"
+import "../../../utils/string-augmentation";
 import BossStageData from "../../../dataobjects/LiveJSON/BossStageData";
 import { SelectBossRandomlyOnEnoughPlayers }
   from "./SelectBossRandomlyOnEnoughPlayers";
 import * as BossRaceHistory from "../../../dataobjects/BossRaceHistory";
 import { BossRaceRoom } from "../../BossRaceRoom";
+import { bossRaceRoomLogger } from "../BossRaceRoom";
 
 export class BossRaceBot extends RoomModule<BossRaceRoom> {
   static allowedSessionIdCharacters = `ABCDEFGHIJKLMNOPQRSTUVWXYZ`
@@ -55,7 +56,7 @@ export class BossRaceBot extends RoomModule<BossRaceRoom> {
     this.creationWaitTask = this.room.clock.setTimeout(() => {
       if (this.room.clientMappings.size == this.room.maxClients) return;
       if (this.room.locked && !this.room.forcedBotMatch) {
-        console.log(`${this.room.roomId}: room locked without enough players, leaving with code 4002`);
+        bossRaceRoomLogger.info(`${this.room.roomId}: room locked without enough players, leaving with code 4002`);
         this.room.clients.forEach(c => c.leave(4002));
         return;
       }
@@ -138,7 +139,7 @@ export class BossRaceBot extends RoomModule<BossRaceRoom> {
       }));
   }
 
-  startGenerateScore = () => this.generateScore().catch(LogError);
+  startGenerateScore = () => this.generateScore().catch(e => bossRaceRoomLogger.error(e));
 
   async generateScore() {
     const targetHistory = BossRaceHistory.Matches
@@ -177,7 +178,7 @@ export class BossRaceBot extends RoomModule<BossRaceRoom> {
       .randomBetween(targetScore.multiply(1 + scoreScalingRange[1]));
     targetScore = Math.max(this.rankToMatch.FloorScore, targetScore);
     targetScore = targetScore.clamp(0, Number.POSITIVE_INFINITY);
-    console.log(`${this.room.roomId}: bot targetScore: ${targetScore}`);
+    bossRaceRoomLogger.info(`${this.room.roomId}: bot targetScore: ${targetScore}`);
 
     const ownState = () => this.room.state.Players.get(this.sessionId);
     const selectBossModule = <SelectBossRandomlyOnEnoughPlayers>
@@ -191,7 +192,7 @@ export class BossRaceBot extends RoomModule<BossRaceRoom> {
     const chosenDeathPhaseIdx = weightedRandomIdxBy(deathProbabilites, e => e);
     const sumSurvivablePhaseSeconds = chosenDiff.PhaseTimes
       .slice(0, chosenDeathPhaseIdx)
-      .reduce(AddNumber, 0);
+      .reduce((a,b)=> a + b, 0);
 
     const totalFightMilliseconds = 1000 * sumSurvivablePhaseSeconds
       .plus(BotGenerationConfig.JSONObj
@@ -223,7 +224,7 @@ export class BossRaceBot extends RoomModule<BossRaceRoom> {
       .plus(totalFightTicks);
     let totalReservedTicks = 0;
     const scoreGapStarts = scoreGapDurations.map((d, i, a) => {
-      let max = a.slice(i, a.length).reduce(AddNumber)
+      let max = a.slice(i, a.length).reduce((a, b) => a + b)
         .plus(5 * tps * (scoreGapCount - 1 - i))
         .multiply(-1)
         .plus(unreservedTicks);

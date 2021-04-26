@@ -1,12 +1,12 @@
 import { Client } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
 import { BossRaceRoom } from "../../BossRaceRoom";
-import { LogError } from "../../../CommonUtils";
-import "../../../number-augmentations";
+import "../../../utils/number-augmentations";
 import { CrossRoomEventEmitter }
   from "../../../dataobjects/CrossRoomEventEmitter";
 import * as BossRaceHistory from "../../../dataobjects/BossRaceHistory";
 import { ProfileServerConnector } from "../../../ProfileServerConnector";
+import { bossRaceRoomLogger } from "../BossRaceRoom";
 
 export class PostMatchResultsOnEnd extends RoomModule<BossRaceRoom> {
 
@@ -31,7 +31,7 @@ export class PostMatchResultsOnEnd extends RoomModule<BossRaceRoom> {
         player_pvp_history(player_id, mode, score, result, created_at)
         VALUES(${thisPlayerID}, 'BossRace', ${p[2]}, '${p[1]}',
           '${now.toISOString()}')`)
-        .catch(LogError);
+        .catch(e => bossRaceRoomLogger.error(e));
         
       BossRaceHistory.Matches.get(thisPlayerID)
         .unshift(<BossRaceHistory.MatchResult>{
@@ -44,5 +44,5 @@ export class PostMatchResultsOnEnd extends RoomModule<BossRaceRoom> {
   updateBFScores = (playerID: number, bfscore: number) => ProfileServerConnector
     .ConnectionPool.execute(`UPDATE player_pvp
       SET battlefield_score = ${bfscore}
-      WHERE player_id = ${playerID}`).catch(LogError);
+      WHERE player_id = ${playerID}`).catch(e => bossRaceRoomLogger.error(e));
 }

@@ -2,7 +2,7 @@ import { Client, Delayed } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
 import { BossRaceRoom } from "../../BossRaceRoom";
 import MatchmakingConfig from "../../../dataobjects/LiveJSON/MatchmakingConfig";
-import { timeout, LogError } from "../../../CommonUtils";
+import { bossRaceRoomLogger } from "../BossRaceRoom";
 
 export class EndMatchOnPlayerInactivity extends RoomModule<BossRaceRoom> {
   inactivityWaits = new Map<string, Delayed>();
@@ -31,7 +31,7 @@ export class EndMatchOnPlayerInactivity extends RoomModule<BossRaceRoom> {
       this.room.broadcast('PlayerInactive', client.sessionId);
       const otherSessionId = [...this.room.state.Players.keys()]
         .find(k => k != client.sessionId);
-      console.log(`${this.room.roomId} end with player inactive`);
+      bossRaceRoomLogger.info(`${this.room.roomId} end with player inactive`);
       this.room.events.emit('endmatch',
         [[client.sessionId,
           'lose',

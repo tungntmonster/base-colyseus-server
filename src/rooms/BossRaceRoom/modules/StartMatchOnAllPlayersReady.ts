@@ -1,7 +1,7 @@
 import { RoomModule } from "../../BaseRoom";
 import { BossRaceRoom } from "../../BossRaceRoom";
 import MatchmakingConfig from "../../../dataobjects/LiveJSON/MatchmakingConfig";
-import { timeout, NoOps } from "../../../CommonUtils"
+import { timeout, NoOps } from "../../../utils/CommonUtils"
 
 export class StartMatchOnAllPlayersReady extends RoomModule<BossRaceRoom> {
   #currentCountdown: number;

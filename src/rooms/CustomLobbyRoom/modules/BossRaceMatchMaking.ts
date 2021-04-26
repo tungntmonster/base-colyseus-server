@@ -1,11 +1,11 @@
 import { Client, matchMaker } from "colyseus";
 import { RoomModule } from "../../BaseRoom";
-import { CustomLobbyRoom } from "../../CustomLobbyRoom";
-import { LogError, timeout } from "../../../CommonUtils";
+import { CustomLobbyRoom, customLobbyRoomLogger } from "../CustomLobbyRoom";
+import { timeout } from "../../../utils/CommonUtils";
 import MatchmakingConfig from "../../../dataobjects/LiveJSON/MatchmakingConfig";
 import { PlayerBattlefieldScores }
   from "../../../dataobjects/PlayerBattlefieldScores";
-import "../../../number-augmentations";
+import "../../../utils/number-augmentations";
 import { RoomListingData } from "colyseus/lib/matchmaker/drivers/Driver";
 import * as BossRaceHistory from "../../../dataobjects/BossRaceHistory";
 import BotGenerationConfig
@@ -24,7 +24,7 @@ export class BossRaceMatchMaking extends RoomModule<CustomLobbyRoom> {
 
   findOrCreateRoom = (client: Client, options: any) => {
     if (options['Mode'] != 'BossRace') return;
-    this.findOrCreateRoomAsync(client, options).catch(LogError);
+    this.findOrCreateRoomAsync(client, options).catch(e => customLobbyRoomLogger.error(e));
   }
 
   findOrCreateRoomAsync = async (client: Client, options: any) => {
@@ -36,7 +36,7 @@ export class BossRaceMatchMaking extends RoomModule<CustomLobbyRoom> {
       name: options['Mode']
     });
     const bfScoreToMatch = PlayerBattlefieldScores.get(playerID);
-    console.log(`matchmaking PlayerID: ${playerID}, bfScoreToMatch: ${bfScoreToMatch}`);
+    customLobbyRoomLogger.info(`matchmaking PlayerID: ${playerID}, bfScoreToMatch: ${bfScoreToMatch}`);
     const scoreRange = BossRaceMatchMaking.getMatchmadeScore(bfScoreToMatch);
     const diffToCurrentClient = (d: RoomListingData<any>) =>
       bfScoreToMatch.difference(d.metadata['AverageBFScore'] as number)
