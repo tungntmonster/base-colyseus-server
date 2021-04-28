@@ -1,9 +1,10 @@
 import { Client } from "colyseus";
-import { Schema, MapSchema, type } from "@colyseus/schema";
+import { Schema, MapSchema } from "@colyseus/schema";
 import "../../utils/number-augmentations";
 import { BaseRoom } from "../BaseRoom";
 import { RoomDirtyConditions, SelectBossRandomlyOnEnoughPlayers, GenerateClientUserData, DisconnectAllOnAdditionalInfoIncomplete, BossRaceBot, UpdatePlayerScore, UpdatePlayerLives, StartMatchOnAllPlayersReady, EndMatchConditions, BroadcastOnEndMatch, CalculateNewBFScoresOnEndMatch, EndMatchOnPlayerInactivity, PostMatchResultsOnEnd } from "./modules";
 import { log } from "../../utils/log";
+import { type } from "../contexts/PvP.BossRace";
 
 
 export const bossRaceRoomLogger = log("Boss Race Room")

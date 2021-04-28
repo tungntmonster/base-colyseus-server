@@ -1,4 +1,4 @@
-import { Schema, type } from "@colyseus/schema";
+import { Schema } from "@colyseus/schema";
 import * as http from "http";
 import { Client, Delayed } from "colyseus";
 import { BaseRoom } from "../BaseRoom";
@@ -6,6 +6,7 @@ import { GetBattlefieldScoreOnJoin, BossRaceMatchMaking, EnsureUniquePlayerID, S
   from "./modules"
 import { NoOps } from "../../utils/CommonUtils";
 import { log } from "../../utils/log";
+import { type } from "../contexts/PvP";
 
 declare module "../BaseRoom" {
   interface RoomEvents {
