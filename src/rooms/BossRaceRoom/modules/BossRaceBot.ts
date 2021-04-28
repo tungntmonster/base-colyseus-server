@@ -114,9 +114,13 @@ export class BossRaceBot extends RoomModule<BossRaceRoom> {
 
   bounceAdditionalInfo = (messageType: string, message: any, source: Client) => {
     if (messageType != 'PlayerAdditionalInfo') return;
+    this.room.events.off('broadcast', this.bounceAdditionalInfo);
     const additionalInfo = (message as string).parseAsObject();
-    const playerPlaneSlots = (additionalInfo['PlaneSlot'] as string)
-      .split('|')
+    let slotCount = "";
+    if (additionalInfo['PlaneSlot'] != null)
+      slotCount = additionalInfo['PlaneSlot'] as string;
+    else slotCount = additionalInfo['Planes'] as string;
+    const playerPlaneSlots = slotCount.split('|')
       .map(p => p.trim())
       .filter(p => p != '-1' && p != '');
     weightedRandomBy(BotGenerationConfig.JSONObj
