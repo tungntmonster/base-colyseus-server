@@ -126,9 +126,9 @@ export class BossRaceBot extends RoomModule<BossRaceRoom> {
     weightedRandomBy(BotGenerationConfig.JSONObj
       .PlaneNumberPowerLevels[playerPlaneSlots.length - 1]
       .PlaneProbabilities, t => t.Weight).Slots
-      .forEach((s: { randomElement: () => number; }) => {
+      .forEach((s: any) => {
         let pi = -1;
-        do { pi = s.randomElement(); }
+        do { pi = randomElement(s) }
         while (this.botPlanes.filter(bp => bp == pi).length > 0)
         this.botPlanes.push(pi);
       });

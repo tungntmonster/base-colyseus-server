@@ -10,7 +10,7 @@ import { createConnection } from "typeorm";
 
 const logger = log("index")
 
-const port = Number(process.env.PORT || 2567);
+const port = Number(process.env.PORT || 25577);
 const endpoint = "localhost";
 
 const app = express();
