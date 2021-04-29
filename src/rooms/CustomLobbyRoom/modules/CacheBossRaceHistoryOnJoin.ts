@@ -22,7 +22,7 @@ export class CacheBossRaceHistoryOnJoin extends RoomModule<CustomLobbyRoom> {
     
     
     try {
-      const history = await getConnection().getRepository(PlayerPvpHistoryEntity).findOne({
+      const histories = await getConnection().getRepository(PlayerPvpHistoryEntity).find({
         where: {
           playerId: playerID,
           mode: 'BossRace'
@@ -32,12 +32,15 @@ export class CacheBossRaceHistoryOnJoin extends RoomModule<CustomLobbyRoom> {
         }
       })
 
-      if(history) {
-        BossRaceHistory.Matches.set(playerID, [{
-          score: history.score,
-          result: history.result,
-          createdAt: history.createdAt
-        }])
+      if(histories) {
+        let result = histories.map(history=>{
+          return {
+            score: history.score,
+            result: history.result,
+            createdAt: history.createdAt
+          }
+        })
+        BossRaceHistory.Matches.set(playerID, result)
         BossRaceHistory.CachedPlayers.add(playerID);
       }
     } catch (err) {

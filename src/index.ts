@@ -39,8 +39,8 @@ createConnection()
   .then(async () => { })
   .catch((error) => logger.error(error));
 
-gameServer.define("CustomLobbyRoom", CustomLobbyRoom);
-gameServer.define("BossRaceRoom", BossRaceRoom);
+gameServer.define("Lobby", CustomLobbyRoom);
+gameServer.define("BossRace", BossRaceRoom);
 
 
 gameServer.onShutdown(() => {
