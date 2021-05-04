@@ -2,6 +2,7 @@ import { createServer } from "http";
 import cors from "cors";
 import express from "express";
 import path from "path";
+import pidusage from "pidusage";
 import { Server } from 'colyseus'
 import serveIndex from 'serve-index';
 import { BossRaceRoom, CustomLobbyRoom } from "./rooms";
@@ -59,3 +60,24 @@ gameServer.listen(port)
   .then(() => logger.info(`Listening on ws://${endpoint}:${port}`))
   .catch((err) => process.exit(1));
 
+
+
+const compute = (cb: Function) => {
+  pidusage(process.pid, function (err, stats) {
+    if(stats.cpu > 99) {
+      process.exit(1);
+    }
+    cb()
+  })
+}
+
+const intervalCompute = (time: number) => {
+  setTimeout(function() {
+    compute(function() {
+      intervalCompute(time)
+    })
+  }, time)
+}
+
+intervalCompute(1 * 1000)
+  
