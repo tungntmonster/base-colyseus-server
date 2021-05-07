@@ -1,6 +1,6 @@
 import { createServer } from "http";
 import cors from "cors";
-import express from "express";
+import express, {Request, Response} from "express";
 import path from "path";
 import pidusage from "pidusage";
 import { Server } from 'colyseus'
@@ -32,6 +32,10 @@ app.get("/hello", (req, res) => {
 });
 
 
+app.get("/ping-server", (req: Request, res: Response) => {
+  res.status(200).json({ processId: process.pid });
+});
+
 app.use('/', serveIndex(path.join(__dirname, "../src/static"), {'icons': true}));
 
 app.use('/', express.static(path.join(__dirname, "../src/static")));
@@ -62,22 +66,4 @@ gameServer.listen(port)
 
 
 
-const compute = (cb: Function) => {
-  pidusage(process.pid, function (err, stats) {
-    if(stats.cpu > 99) {
-      process.exit(1);
-    }
-    cb()
-  })
-}
-
-const intervalCompute = (time: number) => {
-  setTimeout(function() {
-    compute(function() {
-      intervalCompute(time)
-    })
-  }, time)
-}
-
-intervalCompute(1 * 1000)
   

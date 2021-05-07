@@ -12,7 +12,7 @@
     "prod": "npm run build && pm2 start start.json",
     "clean": "node node_modules/rimraf/bin lib",
     "test": "echo \"Error: no test specified\" && exit 1"
-  },   
+  },
   "author": "",
   "license": "UNLICENSED",
   "bugs": {
@@ -36,6 +36,7 @@
     "@colyseus/social": "^0.10.9",
     "@types/fs-extra": "^9.0.11",
     "@types/serve-index": "^1.7.30",
+    "axios": "^0.21.1",
     "colyseus": "^0.14.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
